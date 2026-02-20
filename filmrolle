@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Unsere Filmrolle 🎬</title>
+
+<style>
+
+body{
+    font-family: Arial;
+    background: linear-gradient(180deg,#141414,#2b2b2b);
+    color:white;
+    text-align:center;
+    padding:20px;
+}
+
+h1{
+    margin-bottom:20px;
+}
+
+#reel-container{
+    width:100%;
+    overflow:hidden;
+    border:3px solid white;
+    border-radius:15px;
+    height:120px;
+    position:relative;
+}
+
+#reel{
+    display:flex;
+    gap:20px;
+    position:absolute;
+    left:0;
+    top:20px;
+    transition: transform 2s cubic-bezier(.17,.67,.25,1);
+}
+
+.film{
+    min-width:200px;
+    background:white;
+    color:black;
+    padding:20px;
+    border-radius:10px;
+    font-weight:bold;
+}
+
+button{
+    margin:10px;
+    padding:10px 20px;
+    border:none;
+    border-radius:10px;
+    background:#e50914;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#ff2a36;
+}
+
+input{
+    padding:10px;
+    border-radius:10px;
+    border:none;
+}
+
+#result{
+    margin-top:20px;
+    font-size:22px;
+}
+
+#diceResult{
+    margin-top:10px;
+    font-size:18px;
+}
+
+</style>
+
+</head>
+<body>
+
+<h1>Unsere Filmrolle 🎬</h1>
+
+<div id="reel-container">
+    <div id="reel"></div>
+</div>
+
+<br>
+
+<input id="movieInput" placeholder="Filmname eingeben">
+
+<br>
+
+<button onclick="addMovie()">Film hinzufügen</button>
+<button onclick="removeMovie()">Film entfernen</button>
+
+<br>
+
+<button onclick="spin()">🎲 Film ziehen</button>
+<button onclick="rollDice()">🎲 Wer darf ziehen?</button>
+
+<div id="result"></div>
+<div id="diceResult"></div>
+
+<script>
+
+let movies = JSON.parse(localStorage.getItem("movies")) || [
+    "Harry Potter",
+    "Titanic",
+    "Interstellar",
+    "Shrek"
+];
+
+const reel = document.getElementById("reel");
+
+function save(){
+    localStorage.setItem("movies",JSON.stringify(movies));
+}
+
+function render(){
+
+    reel.innerHTML="";
+
+    movies.forEach(movie=>{
+
+        const div=document.createElement("div");
+        div.className="film";
+        div.innerText=movie;
+
+        reel.appendChild(div);
+
+    });
+
+}
+
+function addMovie(){
+
+    const input=document.getElementById("movieInput");
+
+    if(input.value==="") return;
+
+    movies.push(input.value);
+
+    save();
+    render();
+
+    input.value="";
+
+}
+
+function removeMovie(){
+
+    const input=document.getElementById("movieInput");
+
+    const index=movies.indexOf(input.value);
+
+    if(index>-1){
+
+        movies.splice(index,1);
+
+        save();
+        render();
+
+    }
+
+    input.value="";
+
+}
+
+function spin(){
+
+    if(movies.length===0) return;
+
+    const index=Math.floor(Math.random()*movies.length);
+
+    const offset=index*220;
+
+    reel.style.transform="translateX(-"+offset+"px)";
+
+    document.getElementById("result").innerText=
+    "Heute schauen wir: "+movies[index]+" 🍿";
+
+}
+
+function rollDice(){
+
+    const result=Math.random()<0.5
+    ? "Du darfst ziehen 🙂"
+    : "Sie darf ziehen 🙂";
+
+    document.getElementById("diceResult").innerText=result;
+
+}
+
+render();
+
+</script>
+
+</body>
+</html>
