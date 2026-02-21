@@ -2,78 +2,151 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Unsere Filmrolle 🎬</title>
+<title>movie night generator ♡</title>
 
 <style>
 
 body{
-    font-family: Arial;
-    background: linear-gradient(180deg,#141414,#2b2b2b);
-    color:white;
-    text-align:center;
-    padding:20px;
+background:#0d0f14;
+color:white;
+font-family:Arial, sans-serif;
+text-align:center;
+padding:40px;
+overflow-x:hidden;
 }
 
 h1{
-    margin-bottom:20px;
+font-weight:normal;
+margin-bottom:5px;
 }
 
-#reel-container{
-    width:100%;
-    overflow:hidden;
-    border:3px solid white;
-    border-radius:15px;
-    height:120px;
-    position:relative;
+.divider{
+margin-bottom:40px;
+opacity:0.7;
+}
+
+#mainBox{
+
+margin:auto;
+width:400px;
+height:120px;
+
+border-radius:15px;
+
+background:#151922;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+font-size:22px;
+
+position:relative;
+
+overflow:hidden;
 }
 
 #reel{
-    display:flex;
-    gap:20px;
-    position:absolute;
-    left:0;
-    top:20px;
-    transition: transform 2s cubic-bezier(.17,.67,.25,1);
+position:absolute;
+display:flex;
+gap:20px;
+transition: transform 2.5s cubic-bezier(.17,.67,.25,1);
 }
 
 .film{
-    min-width:200px;
-    background:white;
-    color:black;
-    padding:20px;
-    border-radius:10px;
-    font-weight:bold;
+min-width:200px;
 }
 
 button{
-    margin:10px;
-    padding:10px 20px;
-    border:none;
-    border-radius:10px;
-    background:#e50914;
-    color:white;
-    font-size:16px;
-    cursor:pointer;
+
+background:#16213e;
+
+color:white;
+
+border:none;
+
+padding:10px 20px;
+
+margin:10px;
+
+border-radius:10px;
+
+cursor:pointer;
+
 }
 
 button:hover{
-    background:#ff2a36;
+background:#1f2a52;
 }
 
 input{
-    padding:10px;
-    border-radius:10px;
-    border:none;
+
+background:#151922;
+
+border:none;
+
+color:white;
+
+padding:10px;
+
+border-radius:10px;
+
 }
 
-#result{
-    margin-top:20px;
-    font-size:22px;
+#dice{
+
+width:60px;
+height:60px;
+
+margin:20px auto;
+
+background:#16213e;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:30px;
+
+border-radius:10px;
+
 }
 
-#diceResult{
-    margin-top:10px;
-    font-size:18px;
+.spinDice{
+animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin{
+
+0%{transform:rotate(0deg)}
+100%{transform:rotate(360deg)}
+
+}
+
+.star{
+
+position:fixed;
+
+font-size:20px;
+
+animation: fall 1.5s linear forwards;
+
+}
+
+@keyframes fall{
+
+0%{
+transform:translateY(-50px);
+opacity:1;
+}
+
+100%{
+transform:translateY(400px);
+opacity:0;
+}
+
 }
 
 </style>
@@ -81,120 +154,175 @@ input{
 </head>
 <body>
 
-<h1>Unsere Filmrolle 🎬</h1>
+<h1>movie night generator ♡</h1>
 
-<div id="reel-container">
-    <div id="reel"></div>
+<div class="divider">
+⊹₊˚‧︵‿₊୨ᰔ୧₊‿︵‧˚₊⊹
+</div>
+
+<div id="mainBox">
+
+<div id="startButton" onclick="spin()">
+START🍿
+</div>
+
+<div id="reel"></div>
+
 </div>
 
 <br>
 
-<input id="movieInput" placeholder="Filmname eingeben">
+<input id="movieInput" placeholder="Film hinzufügen">
 
 <br>
 
 <button onclick="addMovie()">Film hinzufügen</button>
+
 <button onclick="removeMovie()">Film entfernen</button>
 
-<br>
+<button onclick="rollDice()">wer darf ziehen</button>
 
-<button onclick="spin()">🎲 Film ziehen</button>
-<button onclick="rollDice()">🎲 Wer darf ziehen?</button>
+<div id="dice"></div>
 
-<div id="result"></div>
 <div id="diceResult"></div>
 
 <script>
 
-let movies = JSON.parse(localStorage.getItem("movies")) || [
-    "Harry Potter",
-    "Titanic",
-    "Interstellar",
-    "Shrek"
-];
+let movies = JSON.parse(localStorage.getItem("movies")) || [];
 
-const reel = document.getElementById("reel");
+const reel=document.getElementById("reel");
 
 function save(){
-    localStorage.setItem("movies",JSON.stringify(movies));
-}
 
-function render(){
-
-    reel.innerHTML="";
-
-    movies.forEach(movie=>{
-
-        const div=document.createElement("div");
-        div.className="film";
-        div.innerText=movie;
-
-        reel.appendChild(div);
-
-    });
+localStorage.setItem("movies",JSON.stringify(movies));
 
 }
 
 function addMovie(){
 
-    const input=document.getElementById("movieInput");
+const input=document.getElementById("movieInput");
 
-    if(input.value==="") return;
+if(input.value==="") return;
 
-    movies.push(input.value);
+movies.push(input.value);
 
-    save();
-    render();
+save();
 
-    input.value="";
+input.value="";
 
 }
 
 function removeMovie(){
 
-    const input=document.getElementById("movieInput");
+const input=document.getElementById("movieInput");
 
-    const index=movies.indexOf(input.value);
+const index=movies.indexOf(input.value);
 
-    if(index>-1){
+if(index>-1){
 
-        movies.splice(index,1);
+movies.splice(index,1);
 
-        save();
-        render();
+save();
 
-    }
+}
 
-    input.value="";
+input.value="";
 
 }
 
 function spin(){
 
-    if(movies.length===0) return;
+if(movies.length===0){
 
-    const index=Math.floor(Math.random()*movies.length);
+alert("Keine Filme vorhanden");
 
-    const offset=index*220;
+return;
 
-    reel.style.transform="translateX(-"+offset+"px)";
+}
 
-    document.getElementById("result").innerText=
-    "Heute schauen wir: "+movies[index]+" 🍿";
+createReel();
+
+const index=Math.floor(Math.random()*movies.length);
+
+const offset=index*220;
+
+reel.style.transform="translateX(-"+offset+"px)";
+
+document.getElementById("startButton").innerText=movies[index];
+
+confetti();
+
+}
+
+function createReel(){
+
+reel.innerHTML="";
+
+movies.forEach(movie=>{
+
+const div=document.createElement("div");
+
+div.className="film";
+
+div.innerText=movie;
+
+reel.appendChild(div);
+
+});
 
 }
 
 function rollDice(){
 
-    const result=Math.random()<0.5
-    ? "Du darfst ziehen 🙂"
-    : "Sie darf ziehen 🙂";
+const dice=document.getElementById("dice");
 
-    document.getElementById("diceResult").innerText=result;
+dice.classList.add("spinDice");
+
+setTimeout(()=>{
+
+dice.classList.remove("spinDice");
+
+const result=Math.random()<0.5?"F":"N";
+
+dice.innerText=result;
+
+if(result==="F"){
+
+document.getElementById("diceResult").innerText=
+"Fabianne darf ziehen";
+
+}else{
+
+document.getElementById("diceResult").innerText=
+"Noah darf ziehen";
 
 }
 
-render();
+},1000);
+
+}
+
+function confetti(){
+
+for(let i=0;i<20;i++){
+
+const star=document.createElement("div");
+
+star.className="star";
+
+star.innerText="⭐";
+
+star.style.left=Math.random()*window.innerWidth+"px";
+
+star.style.top="0px";
+
+document.body.appendChild(star);
+
+setTimeout(()=>star.remove(),1500);
+
+}
+
+}
 
 </script>
 
