@@ -12,17 +12,12 @@ color:white;
 font-family:Arial;
 text-align:center;
 padding:40px;
-overflow:hidden;
+margin:0;
 }
 
 h1{
 font-weight:normal;
-animation: zoomIn 1s ease;
-}
-
-@keyframes zoomIn{
-0%{transform:scale(0.7); opacity:0;}
-100%{transform:scale(1); opacity:1;}
+margin-bottom:5px;
 }
 
 .divider{
@@ -40,15 +35,6 @@ display:flex;
 align-items:center;
 justify-content:center;
 font-size:22px;
-position:relative;
-overflow:hidden;
-}
-
-#reel{
-position:absolute;
-display:flex;
-gap:20px;
-transition: transform 2.5s cubic-bezier(.17,.67,.25,1);
 }
 
 button{
@@ -77,36 +63,51 @@ border-radius:10px;
 display:none;
 font-size:25px;
 cursor:pointer;
-margin-top:20px;
+margin-top:15px;
 }
 
-/* POPUP */
+/* Hamburger */
 
-#popupOverlay{
+#hamburger{
+position:fixed;
+top:20px;
+right:20px;
+font-size:28px;
+cursor:pointer;
+}
+
+/* POPUP BASE */
+
+.overlay{
 position:fixed;
 top:0;
 left:0;
 width:100%;
 height:100%;
-backdrop-filter: blur(5px);
+backdrop-filter: blur(6px);
 display:none;
 align-items:center;
 justify-content:center;
 }
 
-#popup{
+.popup{
 background:#151922;
 padding:30px;
 border-radius:15px;
 position:relative;
+max-height:400px;
+overflow:auto;
 }
 
-#close{
+.close{
 position:absolute;
-right:10px;
-top:5px;
+right:15px;
+top:10px;
 cursor:pointer;
+font-size:20px;
 }
+
+/* Dice */
 
 #dice{
 width:80px;
@@ -129,6 +130,13 @@ animation: spin 0.5s linear infinite;
 100%{transform:rotate(360deg)}
 }
 
+/* Movie list */
+
+.movieItem{
+padding:8px;
+border-bottom:1px solid #333;
+}
+
 /* FIREWORK */
 
 .star{
@@ -143,6 +151,8 @@ pointer-events:none;
 </head>
 <body>
 
+<div id="hamburger" onclick="openMovieList()">☰</div>
+
 <h1>movie night generator ♡</h1>
 
 <div class="divider">
@@ -150,13 +160,7 @@ pointer-events:none;
 </div>
 
 <div id="mainBox">
-
-<div id="startButton" onclick="spin()">
-START🍿
-</div>
-
-<div id="reel"></div>
-
+<div id="display">START🍿</div>
 </div>
 
 <div id="respinner" onclick="spin()">↻</div>
@@ -171,18 +175,18 @@ START🍿
 
 <button onclick="removeMovie()">Film entfernen</button>
 
-<button onclick="openPopup()">wer darf ziehen</button>
+<button onclick="openDice()">wer darf ziehen</button>
 
 
-<!-- POPUP -->
+<!-- Dice Popup -->
 
-<div id="popupOverlay">
+<div id="diceOverlay" class="overlay">
 
-<div id="popup">
+<div class="popup">
 
-<div id="close" onclick="closePopup()">✕</div>
+<div class="close" onclick="closeDice()">✕</div>
 
-<div id="dice">6</div>
+<div id="dice">⚄</div>
 
 <br>
 
@@ -195,43 +199,32 @@ START🍿
 </div>
 
 
+<!-- Movie List Popup -->
+
+<div id="listOverlay" class="overlay">
+
+<div class="popup">
+
+<div class="close" onclick="closeMovieList()">✕</div>
+
+<h3>Gespeicherte Filme</h3>
+
+<div id="movieList"></div>
+
+</div>
+
+</div>
+
+
 <script>
 
 let movies = JSON.parse(localStorage.getItem("movies")) || [];
-
-const reel=document.getElementById("reel");
 
 function save(){
 localStorage.setItem("movies",JSON.stringify(movies));
 }
 
-function addMovie(){
-const input=document.getElementById("movieInput");
-if(input.value==="") return;
-movies.push(input.value);
-save();
-input.value="";
-}
-
-function removeMovie(){
-const input=document.getElementById("movieInput");
-const index=movies.indexOf(input.value);
-if(index>-1){
-movies.splice(index,1);
-save();
-}
-input.value="";
-}
-
-function createReel(){
-reel.innerHTML="";
-movies.forEach(movie=>{
-const div=document.createElement("div");
-div.innerText=movie;
-div.style.minWidth="200px";
-reel.appendChild(div);
-});
-}
+/* FILM FUNCTIONS */
 
 function spin(){
 
@@ -240,35 +233,62 @@ alert("Keine Filme vorhanden");
 return;
 }
 
-createReel();
+const randomIndex=Math.floor(Math.random()*movies.length);
 
-const index=Math.floor(Math.random()*movies.length);
-const offset=index*220;
+document.getElementById("display").innerText=movies[randomIndex];
 
-reel.style.transform="translateX(-"+offset+"px)";
-
-setTimeout(()=>{
-document.getElementById("startButton").innerText=movies[index];
 document.getElementById("respinner").style.display="block";
+
 firework();
-},2000);
 
 }
 
-/* POPUP */
+function addMovie(){
 
-function openPopup(){
-document.getElementById("popupOverlay").style.display="flex";
+const input=document.getElementById("movieInput");
+
+if(input.value==="") return;
+
+movies.push(input.value);
+
+save();
+
+input.value="";
+
 }
 
-function closePopup(){
-document.getElementById("popupOverlay").style.display="none";
+function removeMovie(){
+
+const input=document.getElementById("movieInput");
+
+const index=movies.indexOf(input.value);
+
+if(index>-1){
+
+movies.splice(index,1);
+
+save();
+
+}
+
+input.value="";
+
+}
+
+
+/* DICE */
+
+function openDice(){
+document.getElementById("diceOverlay").style.display="flex";
+}
+
+function closeDice(){
+document.getElementById("diceOverlay").style.display="none";
 }
 
 function rollDice(){
 
 const dice=document.getElementById("dice");
-const resultText=document.getElementById("diceResult");
 
 dice.classList.add("spin");
 
@@ -286,7 +306,7 @@ const result=Math.random()<0.5?"F":"N";
 
 dice.innerText=result;
 
-resultText.innerText=
+document.getElementById("diceResult").innerText=
 result==="F"
 ?"Fabianne darf ziehen"
 :"Noah darf ziehen";
@@ -294,6 +314,44 @@ result==="F"
 },1500);
 
 }
+
+
+/* MOVIE LIST */
+
+function openMovieList(){
+
+document.getElementById("listOverlay").style.display="flex";
+
+renderMovieList();
+
+}
+
+function closeMovieList(){
+
+document.getElementById("listOverlay").style.display="none";
+
+}
+
+function renderMovieList(){
+
+const list=document.getElementById("movieList");
+
+list.innerHTML="";
+
+movies.forEach(movie=>{
+
+const div=document.createElement("div");
+
+div.className="movieItem";
+
+div.innerText=movie;
+
+list.appendChild(div);
+
+});
+
+}
+
 
 /* FIREWORK */
 
